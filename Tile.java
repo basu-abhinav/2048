@@ -1,36 +1,89 @@
 package Game;
-class Tile
-{
-    private boolean merged;
+import java.util.ArrayList;
+
+class Tile{
     private int value;
-
-    Tile(int val)
-    {
-        this.value = val;
+    private ArrayList<String> names;
+    private boolean isMerged;
+    
+    public Tile(int value){
+        this.value = value;
+        this.names = new ArrayList<>();
+        this.isMerged = false;
+    }
+    
+    public int getValue(){
+        return this.value;
     }
 
-    int getValue()
-    {
-        return value;
+    public ArrayList<String> getNames(){
+        return this.names;
     }
 
-    void setMerged(boolean m)
-    {
-        merged = m;
+    public void addName(String name){
+        names.add(name);
     }
 
-    boolean canMergeWith(Tile other)
-    {
-        return !merged && other != null && !other.merged && value == other.getValue();
+    public void addName(ArrayList<String> newNames){
+        names.addAll(newNames);
     }
 
-    int mergeWith(Tile other)
+    public boolean isMerged(){
+        return isMerged;
+    }
+
+    public void setMerged(boolean isMerged){
+        this.isMerged = isMerged;
+    }
+
+    public boolean canMergeWith(Tile other)
     {
-        if (canMergeWith(other)) {
-            value *= 2;
-            merged = true;
-            return value;
+        return !isMerged && other != null && !other.isMerged() && value == other.getValue();
+    }
+
+    public boolean mergeWith(Tile other, Operation operation){
+        if(canMergeWith(other)){
+            switch (operation)
+            {
+                case ADD:{
+                    value += value;
+                    break;
+                }
+                case SUBTRACT:{
+                    value -= value;
+                    break;
+                }
+                case MULTIPLY:{
+                    value *= value;
+                    break;
+                }
+                case DIVIDE:{
+                    value /= value;
+                    break;
+                }
+            }     
+            this.addName(other.getNames());  
+            this.setMerged(true);
+            return true;
         }
-        return -1;
+        return false;
     }
+
+    public String getValueString(){
+        return String.valueOf(value);
+    }
+
+
+    public boolean isNamed(){
+        return !names.isEmpty();
+    } 
+
+    public String getNameString(){
+        String str="";
+        for(String name: names){
+            str += name;
+        }
+        return str;
+    }
+
 }
