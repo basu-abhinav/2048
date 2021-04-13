@@ -13,6 +13,7 @@ public class Driver
     private ArrayList<String> moveOperations;
     private ArrayList<String> moveDirections;
     private ArrayList<String> commands;
+    private ArrayList<String> otherKeywords;
 
     public Driver()
     {
@@ -20,6 +21,7 @@ public class Driver
         this.moveOperations = new ArrayList<String>(Arrays.asList("ADD","SUBTRACT","MULTIPLY","DIVIDE"));
         this.moveDirections = new ArrayList<String>(Arrays.asList("LEFT","RIGHT","UP","DOWN"));
         this.commands = new ArrayList<String>(Arrays.asList("ASSIGN","VAR","VALUE"));
+        this.otherKeywords = new ArrayList<String>(Arrays.asList("IS","TO","IN"));
     }
 
     void printBoard(Tile[][] tiles)
@@ -69,9 +71,15 @@ public class Driver
 
     private boolean isValidCommand(String command)
     {
-
-
-
+        StringTokenizer tokens = new StringTokenizer(command);
+        int numTokens = tokens.countTokens();
+        if(numTokens > 4 || numTokens < 2)
+            return false;
+        String firstToken = tokens.nextToken();
+        if(this.moveOperations.contains(firstToken))
+            return isValidMove(command);
+        if(this.commands.contains(firstToken))
+            return isValidOperation(command);
         return false;
     }
 
@@ -90,19 +98,79 @@ public class Driver
     private boolean isValidOperation(String command)
     {
         StringTokenizer keywords = new StringTokenizer(command," ");
-        if(keywords.countTokens() > 4 || keywords.countTokens() < 3)
+        int numTokens = keywords.countTokens();
+        if(numTokens > 4 || numTokens < 3)
             return false;
         String operation = keywords.nextToken();
         if(!this.commands.contains(operation))
             return false;
         
-        if(operation.compareTo("ASSIGN") == 0)
+        try
         {
-            int value = Integer.parseInt(keywords.nextToken());
-            if(keywords.nextToken().compareTo("TO") != 0)
-                return false;
-            
+            if(operation.compareTo("ASSIGN") == 0 && numTokens == 4)
+            {
+                int value = Integer.parseInt(keywords.nextToken());
+                if(value < 0)
+                    return false;
+
+                if(keywords.nextToken().compareTo("TO") != 0)
+                    return false;
+                
+                StringTokenizer indexValues = new StringTokenizer(keywords.nextToken(),",");
+                if(indexValues.countTokens() != 2)
+                    return false;
+                int x = Integer.parseInt(indexValues.nextToken());
+                int y = Integer.parseInt(indexValues.nextToken());
+
+                if(x < 1 || x > 4 || y < 1 || y > 4)
+                    return false;
+                
+                return true;
+            }
+
+            if(operation.compareTo("VAR") == 0 && numTokens == 4)
+            {
+                String name = keywords.nextToken();
+                if(this.moveDirections.contains(name) || this.moveOperations.contains(name) || this.commands.contains(name) || this.otherKeywords.contains(name))
+                    return false;
+                if(keywords.nextToken().compareTo("IS") != 0)
+                    return false;
+                
+                StringTokenizer indexValues = new StringTokenizer(keywords.nextToken(),",");
+                if(indexValues.countTokens() != 2)
+                    return false;
+                int x = Integer.parseInt(indexValues.nextToken());
+                int y = Integer.parseInt(indexValues.nextToken());
+
+                if(x < 1 || x > 4 || y < 1 || y > 4)
+                    return false;
+                
+                return true;
+            }
+
+            if(operation.compareTo("VALUE") == 0 && numTokens == 3)
+            {
+                if(keywords.nextToken().compareTo("IN") != 0)
+                    return false;
+                
+                StringTokenizer indexValues = new StringTokenizer(keywords.nextToken(),",");
+                if(indexValues.countTokens() != 2)
+                    return false;
+                int x = Integer.parseInt(indexValues.nextToken());
+                int y = Integer.parseInt(indexValues.nextToken());
+
+                if(x < 1 || x > 4 || y < 1 || y > 4)
+                    return false;
+                
+                return true;
+            }
         }
+        catch(NumberFormatException e)
+        {
+            return false;
+        }
+
+        return false;
     }
 
     private boolean endsWithFullStop(String command)
@@ -123,7 +191,6 @@ public class Driver
         return keywords[0];
     }
 
-    
 
     private Error getError(Operation operation)
     {
@@ -149,6 +216,6 @@ public class Driver
 
     public static void main(String args[])
     {
-        
+
     }
 }
