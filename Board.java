@@ -4,7 +4,7 @@ import java.util.Random;
 public class Board {
 
     private Tile[][] tiles; 
-    private final int DIMENSION = 4; 
+    private static final int DIMENSION = 4; 
     private boolean checkingAvailableMoves;
     private GameState gameState;
     private Random rand = new Random();
@@ -13,12 +13,35 @@ public class Board {
     {
         initializeBoard();
         this.checkingAvailableMoves = false;
+        this.gameState = GameState.START;
     }
 
     public Board(Board board){
         this.tiles = board.getTiles().clone();
         this.gameState = board.getGameState();
         checkingAvailableMoves = false;
+    }
+
+    public void printBoard()
+    {
+        System.out.println("- - - - - - - - -");
+        for(int i=0;i<4;i++)
+        {
+            for(int j=0;j<4;j++)
+            {
+                if(this.tiles[i][j] != null)
+                {
+                    System.out.print("| "+this.tiles[i][j].getValue()+" ");
+                }
+                else
+                {
+                    System.out.print("|   ");
+                }
+            }
+            System.out.print("|");
+            System.out.println();
+            System.out.println("- - - - - - - - -");
+        }
     }
 
     private void initializeBoard()
@@ -45,7 +68,7 @@ public class Board {
         return hasMoves;
     }
 
-    void addRandomTile(){
+    private void addRandomTile(){
         int pos = 0;
         int row, col;
         do {
@@ -58,7 +81,7 @@ public class Board {
         tiles[row][col] = new Tile(val);
     }
 
-    void addRandomTile(boolean moved)
+    private void addRandomTile(boolean moved)
     {
         if(!moved)
         {
@@ -76,7 +99,7 @@ public class Board {
         tiles[row][col] = new Tile(val);
     }
 
-    void clearMerged()
+    private void clearMerged()
     {
         for (Tile[] row : tiles)
             for (Tile tile : row)
@@ -147,13 +170,15 @@ public class Board {
         return moved;
     }
   
-    public boolean checkMoveCommand(Operation operation, Direction direction){
+    public boolean checkMoveCommand(Operation operation, Direction direction)
+    {
         Board boardClone = new Board(this);
         boardClone.moveCommand(operation, direction);
         return !boardClone.getGameState().equals(GameState.GAME_OVER);
     }
 
-    public boolean moveCommand(Operation operation, Direction direction){
+    public boolean moveCommand(Operation operation, Direction direction)
+    {
         int countDownFrom = 0 , yIncr = 0, xIncr = 0;
         switch (direction){
             case LEFT:{
@@ -184,45 +209,88 @@ public class Board {
         return move(countDownFrom,yIncr,xIncr,operation);
     }
 
-    public Tile[][] getTiles() {
+    public boolean moveCommand(Direction direction)
+    {
+        int countDownFrom = 0 , yIncr = 0, xIncr = 0;
+        switch (direction){
+            case LEFT:{
+                countDownFrom = 0;
+                yIncr = 0;
+                xIncr =-1;
+                break;
+            }
+            case RIGHT:{
+                countDownFrom = DIMENSION * DIMENSION - 1;
+                yIncr = 0;
+                xIncr =1;
+                break;
+            }
+            case UP:{
+                countDownFrom = 0;
+                yIncr = -1;
+                xIncr =0;
+                break;
+            }
+            case DOWN:{
+                countDownFrom = DIMENSION*DIMENSION-1;
+                yIncr = 1;
+                xIncr =0;
+                break;
+            }
+        }
+        return move(countDownFrom,yIncr,xIncr,Operation.ADD);
+    }
+
+    private Tile[][] getTiles()
+    {
         return tiles;
     }
 
-    public void setTiles(Tile[][] tiles) {
+    private void setTiles(Tile[][] tiles)
+    {
         this.tiles = tiles;
     }
 
-    public GameState getGameState() {
+    public GameState getGameState()
+    {
         return gameState;
     }
 
-    public void setGameState(GameState gameState) {
+    private void setGameState(GameState gameState)
+    {
         this.gameState = gameState;
     }
 
-    public boolean assign(int x, int y, int value){
-        if(x>1 && x<=DIMENSION && y>0 && y<=DIMENSION){
+    public boolean assign(int x, int y, int value)
+    {
+        if(x>1 && x<=DIMENSION && y>0 && y<=DIMENSION)
+        {
             tiles[x-1][y-1] = new Tile(value);
             return true;
         }
         return false;
     }
 
-    public boolean var(int x,int y, String name){
-        if(x>1 && x<=DIMENSION && y>0 && y<=DIMENSION && tiles[x-1][y-1] != null){
+    public boolean var(int x,int y, String name)
+    {
+        if(x>1 && x<=DIMENSION && y>0 && y<=DIMENSION && tiles[x-1][y-1] != null)
+        {
             tiles[x-1][y-1].addName(name);
         }
         return false;
     }
 
-    public int getTileValue(int x, int y){
-        if(x>1 && x<=DIMENSION && y>0 && y<=DIMENSION && tiles[x-1][y-1] != null){
+    public int getTileValue(int x, int y)
+    {
+        if(x>1 && x<=DIMENSION && y>0 && y<=DIMENSION && tiles[x-1][y-1] != null)
+        {
             return tiles[x-1][y-1].getValue();
         }
         return -1;
     }
 
-    public String toString(){
+    public String toString()
+    {
         String str = "";
         for(Tile[] tileArray: tiles){
             for(Tile tile: tileArray){

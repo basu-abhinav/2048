@@ -6,33 +6,40 @@ class Tile{
     private ArrayList<String> names;
     private boolean isMerged;
     
-    public Tile(int value){
+    public Tile(int value)
+    {
         this.value = value;
         this.names = new ArrayList<>();
         this.isMerged = false;
     }
     
-    public int getValue(){
+    public int getValue()
+    {
         return this.value;
     }
 
-    public ArrayList<String> getNames(){
+    public ArrayList<String> getNames()
+    {
         return this.names;
     }
 
-    public void addName(String name){
+    public void addName(String name)
+    {
         names.add(name);
     }
 
-    public void addName(ArrayList<String> newNames){
+    public void addName(ArrayList<String> newNames)
+    {
         names.addAll(newNames);
     }
 
-    public boolean isMerged(){
+    public boolean isMerged()
+    {
         return isMerged;
     }
 
-    public void setMerged(boolean isMerged){
+    public void setMerged(boolean isMerged)
+    {
         this.isMerged = isMerged;
     }
 
@@ -41,23 +48,29 @@ class Tile{
         return !isMerged && other != null && !other.isMerged() && value == other.getValue();
     }
 
-    public boolean mergeWith(Tile other, Operation operation){
-        if(canMergeWith(other)){
+    public boolean mergeWith(Tile other, Operation operation)
+    {
+        if(canMergeWith(other))
+        {
             switch (operation)
             {
-                case ADD:{
+                case ADD:
+                {
                     value += value;
                     break;
                 }
-                case SUBTRACT:{
+                case SUBTRACT:
+                {
                     value -= value;
                     break;
                 }
-                case MULTIPLY:{
+                case MULTIPLY:
+                {
                     value *= value;
                     break;
                 }
-                case DIVIDE:{
+                case DIVIDE:
+                {
                     value /= value;
                     break;
                 }
@@ -69,18 +82,22 @@ class Tile{
         return false;
     }
 
-    public String getValueString(){
+    public String getValueString()
+    {
         return String.valueOf(value);
     }
 
 
-    public boolean isNamed(){
+    public boolean isNamed()
+    {
         return !names.isEmpty();
     } 
 
-    public String getNameString(){
+    public String getNameString()
+    {
         String str="";
-        for(String name: names){
+        for(String name: names)
+        {
             str += name;
         }
         return str;

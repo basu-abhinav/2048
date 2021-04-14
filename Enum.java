@@ -11,7 +11,7 @@ enum Direction
 
 enum GameState
 {
-    RUNNING,GAME_OVER
+    RUNNING,GAME_OVER,START
 }
 
 enum Error

@@ -1,6 +1,5 @@
 package Game;
 import Game.Tile;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
@@ -8,8 +7,6 @@ import java.util.StringTokenizer;
 
 public class Driver
 {
-    Tile[][] prevState;
-
     private ArrayList<String> moveOperations;
     private ArrayList<String> moveDirections;
     private ArrayList<String> commands;
@@ -17,33 +14,10 @@ public class Driver
 
     public Driver()
     {
-        this.prevState = new Tile[4][4];
         this.moveOperations = new ArrayList<String>(Arrays.asList("ADD","SUBTRACT","MULTIPLY","DIVIDE"));
         this.moveDirections = new ArrayList<String>(Arrays.asList("LEFT","RIGHT","UP","DOWN"));
         this.commands = new ArrayList<String>(Arrays.asList("ASSIGN","VAR","VALUE"));
         this.otherKeywords = new ArrayList<String>(Arrays.asList("IS","TO","IN"));
-    }
-
-    void printBoard(Tile[][] tiles)
-    {
-        System.out.println("- - - - - - - - -");
-        for(int i=0;i<4;i++)
-        {
-            for(int j=0;j<4;j++)
-            {
-                if(tiles[i][j] != null)
-                {
-                    System.out.print("| "+tiles[i][j].getValue()+" ");
-                }
-                else
-                {
-                    System.out.print("|   ");
-                }
-            }
-            System.out.print("|");
-            System.out.println();
-            System.out.println("- - - - - - - - -");
-        }
     }
 
     private Operation getOperation(String command)
@@ -69,9 +43,26 @@ public class Driver
 
     }
 
+    private Direction getDirection(String command)
+    {
+        StringTokenizer keywords = new StringTokenizer(command," ");
+        String operation = keywords.nextToken();
+        String direction = keywords.nextToken();
+
+        if(direction.compareTo("LEFT") == 0)
+            return Direction.LEFT;
+        if(direction.compareTo("RIGHT") == 0)
+            return Direction.RIGHT;
+        if(direction.compareTo("UP") == 0)
+            return Direction.UP;
+        if(direction.compareTo("DOWN") == 0)
+            return Direction.DOWN;
+        return null;
+    }
+
     private boolean isValidCommand(String command)
     {
-        StringTokenizer tokens = new StringTokenizer(command);
+        StringTokenizer tokens = new StringTokenizer(command," ");
         int numTokens = tokens.countTokens();
         if(numTokens > 4 || numTokens < 2)
             return false;
@@ -191,10 +182,108 @@ public class Driver
         return keywords[0];
     }
 
-
-    private Error getError(Operation operation)
+    private Error getError(String command)
     {
-        return Error.VARIABLENAME;
+        StringTokenizer tokens = new StringTokenizer(command," ");
+        int numTokens = tokens.countTokens();
+        if(numTokens > 4 || numTokens < 2)
+            return Error.INVALIDCOMMAND;
+        String firstToken = tokens.nextToken();
+        if(this.moveOperations.contains(firstToken))
+            return getErrorMove(command);
+        if(this.commands.contains(firstToken))
+            return getErrorOperation(command);
+        return Error.INVALIDCOMMAND;
+    }
+
+    private Error getErrorMove(String command)
+    {
+        StringTokenizer keywords = new StringTokenizer(command," ");
+        if(keywords.countTokens() != 2)
+            return Error.INVALIDCOMMAND;
+        if(!this.moveOperations.contains(keywords.nextToken()))
+            return Error.INVALIDCOMMAND;
+        if(!this.moveDirections.contains(keywords.nextToken()))
+            return Error.INVALIDCOMMAND;
+        return Error.INVALIDCOMMAND;
+    }
+
+    private Error getErrorOperation(String command)
+    {
+        StringTokenizer keywords = new StringTokenizer(command," ");
+        int numTokens = keywords.countTokens();
+        if(numTokens > 4 || numTokens < 3)
+            return Error.INVALIDCOMMAND;
+        String operation = keywords.nextToken();
+        if(!this.commands.contains(operation))
+            return Error.INVALIDCOMMAND;
+        
+        try
+        {
+            if(operation.compareTo("ASSIGN") == 0 && numTokens == 4)
+            {
+                int value = Integer.parseInt(keywords.nextToken());
+                if(value < 0)
+                    return Error.INCORRECTVALUE;
+
+                if(keywords.nextToken().compareTo("TO") != 0)
+                    return Error.INVALIDCOMMAND;
+                
+                StringTokenizer indexValues = new StringTokenizer(keywords.nextToken(),",");
+                if(indexValues.countTokens() != 2)
+                    return Error.INVALIDCOMMAND;
+                int x = Integer.parseInt(indexValues.nextToken());
+                int y = Integer.parseInt(indexValues.nextToken());
+
+                if(x < 1 || x > 4 || y < 1 || y > 4)
+                    return Error.WRONGINDEX;
+                
+                return Error.INVALIDCOMMAND;
+            }
+
+            if(operation.compareTo("VAR") == 0 && numTokens == 4)
+            {
+                String name = keywords.nextToken();
+                if(this.moveDirections.contains(name) || this.moveOperations.contains(name) || this.commands.contains(name) || this.otherKeywords.contains(name))
+                    return Error.VARIABLENAME;
+                if(keywords.nextToken().compareTo("IS") != 0)
+                    return Error.INVALIDCOMMAND;
+                
+                StringTokenizer indexValues = new StringTokenizer(keywords.nextToken(),",");
+                if(indexValues.countTokens() != 2)
+                    return Error.INVALIDCOMMAND;
+                int x = Integer.parseInt(indexValues.nextToken());
+                int y = Integer.parseInt(indexValues.nextToken());
+
+                if(x < 1 || x > 4 || y < 1 || y > 4)
+                    return Error.WRONGINDEX;
+                
+                return Error.INVALIDCOMMAND;
+            }
+
+            if(operation.compareTo("VALUE") == 0 && numTokens == 3)
+            {
+                if(keywords.nextToken().compareTo("IN") != 0)
+                    return Error.INVALIDCOMMAND;
+                
+                StringTokenizer indexValues = new StringTokenizer(keywords.nextToken(),",");
+                if(indexValues.countTokens() != 2)
+                    return Error.INVALIDCOMMAND;
+                int x = Integer.parseInt(indexValues.nextToken());
+                int y = Integer.parseInt(indexValues.nextToken());
+
+                if(x < 1 || x > 4 || y < 1 || y > 4)
+                    return Error.WRONGINDEX;
+                
+                return Error.INVALIDCOMMAND;
+            }
+        }
+        catch(NumberFormatException e)
+        {
+            return Error.INVALIDCOMMAND;
+        }
+
+        return Error.INVALIDCOMMAND;
     }
 
     private String getErrorMessage(Error error)
@@ -214,8 +303,58 @@ public class Driver
         }
     }
 
+    private boolean executeMove(Board board,String command)
+    {
+        return board.moveCommand(this.getOperation(command), this.getDirection(command));
+    }
+
+    private boolean executeOperation(Board board,String command)
+    {
+        Operation oper = this.getOperation(command);
+        StringTokenizer tokens = null,indices = null;
+        String index = null;
+        int x=0,y=0;
+        switch(oper)
+        {
+            case ASSIGN:
+                tokens = new StringTokenizer(command," ");
+                String assign = tokens.nextToken();
+                int value = Integer.parseInt(tokens.nextToken());
+                String to = tokens.nextToken();
+                index = tokens.nextToken();
+                indices = new StringTokenizer(index,",");
+                x = Integer.parseInt(indices.nextToken());
+                y = Integer.parseInt(indices.nextToken());
+                return board.assign(x, y, value);
+            case VAR:
+                tokens = new StringTokenizer(command," ");
+                String var = tokens.nextToken();
+                String name = tokens.nextToken();
+                String is = tokens.nextToken();
+                index = tokens.nextToken();
+                indices = new StringTokenizer(index,",");
+                x = Integer.parseInt(indices.nextToken());
+                y = Integer.parseInt(indices.nextToken());
+                return board.var(x, y, name);                
+            default:
+                return false;
+        }
+    }
+
+    private int executeOperationValue(Board board,String command)
+    {
+        StringTokenizer tokens = new StringTokenizer(command," ");
+        String val = tokens.nextToken();
+        String in = tokens.nextToken();
+        String index = tokens.nextToken();
+        StringTokenizer indices = new StringTokenizer(index,",");
+        int x = Integer.parseInt(indices.nextToken());
+        int y = Integer.parseInt(indices.nextToken());
+        return board.getTileValue(x, y);
+    }
+
     public static void main(String args[])
     {
-
+        System.out.println("Welcome to the 2048 Game Engine!");
     }
 }
