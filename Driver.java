@@ -1,8 +1,7 @@
 package Game;
-import Game.Tile;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Random;
+import java.util.Scanner;
 import java.util.StringTokenizer;
 
 public class Driver
@@ -11,6 +10,9 @@ public class Driver
     private ArrayList<String> moveDirections;
     private ArrayList<String> commands;
     private ArrayList<String> otherKeywords;
+    private ArrayList<Operation> supportedMoves;
+    //private ArrayList<Direction> supportedDirections;
+    private ArrayList<Operation> supportedOperations;
 
     public Driver()
     {
@@ -18,6 +20,9 @@ public class Driver
         this.moveDirections = new ArrayList<String>(Arrays.asList("LEFT","RIGHT","UP","DOWN"));
         this.commands = new ArrayList<String>(Arrays.asList("ASSIGN","VAR","VALUE"));
         this.otherKeywords = new ArrayList<String>(Arrays.asList("IS","TO","IN"));
+        this.supportedMoves = new ArrayList<Operation>(Arrays.asList(Operation.ADD,Operation.SUBTRACT,Operation.MULTIPLY,Operation.DIVIDE));
+        //this.supportedDirections = new ArrayList<Direction>(Arrays.asList(Direction.UP,Direction.DOWN,Direction.LEFT,Direction.RIGHT));
+        this.supportedOperations = new ArrayList<Operation>(Arrays.asList(Operation.ASSIGN,Operation.VAR,Operation.VALUE));
     }
 
     private Operation getOperation(String command)
@@ -193,6 +198,8 @@ public class Driver
             return getErrorMove(command);
         if(this.commands.contains(firstToken))
             return getErrorOperation(command);
+        if(this.checkCase(firstToken))
+            return Error.SYNTAXERROR;
         return Error.INVALIDCOMMAND;
     }
 
@@ -200,11 +207,22 @@ public class Driver
     {
         StringTokenizer keywords = new StringTokenizer(command," ");
         if(keywords.countTokens() != 2)
+            return Error.SYNTAXERROR;
+
+        
+        String firstToken = keywords.nextToken();
+        if(!this.moveOperations.contains(firstToken))
             return Error.INVALIDCOMMAND;
-        if(!this.moveOperations.contains(keywords.nextToken()))
-            return Error.INVALIDCOMMAND;
-        if(!this.moveDirections.contains(keywords.nextToken()))
-            return Error.INVALIDCOMMAND;
+
+
+        String secondToken = keywords.nextToken();
+        if(!this.moveDirections.contains(secondToken))
+        {
+            if(this.checkCase(secondToken))
+                return Error.SYNTAXERROR;
+            else
+                return Error.INVALIDCOMMAND;
+        }        
         return Error.INVALIDCOMMAND;
     }
 
@@ -213,10 +231,8 @@ public class Driver
         StringTokenizer keywords = new StringTokenizer(command," ");
         int numTokens = keywords.countTokens();
         if(numTokens > 4 || numTokens < 3)
-            return Error.INVALIDCOMMAND;
+            return Error.SYNTAXERROR;
         String operation = keywords.nextToken();
-        if(!this.commands.contains(operation))
-            return Error.INVALIDCOMMAND;
         
         try
         {
@@ -225,20 +241,19 @@ public class Driver
                 int value = Integer.parseInt(keywords.nextToken());
                 if(value < 0)
                     return Error.INCORRECTVALUE;
-
-                if(keywords.nextToken().compareTo("TO") != 0)
-                    return Error.INVALIDCOMMAND;
-                
+                String to = keywords.nextToken();
+                if(to.compareTo("TO") != 0)
+                    return Error.SYNTAXERROR;                
                 StringTokenizer indexValues = new StringTokenizer(keywords.nextToken(),",");
                 if(indexValues.countTokens() != 2)
-                    return Error.INVALIDCOMMAND;
+                    return Error.SYNTAXERROR;
                 int x = Integer.parseInt(indexValues.nextToken());
                 int y = Integer.parseInt(indexValues.nextToken());
 
                 if(x < 1 || x > 4 || y < 1 || y > 4)
                     return Error.WRONGINDEX;
                 
-                return Error.INVALIDCOMMAND;
+                return Error.SYNTAXERROR;
             }
 
             if(operation.compareTo("VAR") == 0 && numTokens == 4)
@@ -246,41 +261,41 @@ public class Driver
                 String name = keywords.nextToken();
                 if(this.moveDirections.contains(name) || this.moveOperations.contains(name) || this.commands.contains(name) || this.otherKeywords.contains(name))
                     return Error.VARIABLENAME;
-                if(keywords.nextToken().compareTo("IS") != 0)
-                    return Error.INVALIDCOMMAND;
-                
+                String is = keywords.nextToken();
+                if(is.compareTo("IS") != 0)
+                    return Error.SYNTAXERROR;                
                 StringTokenizer indexValues = new StringTokenizer(keywords.nextToken(),",");
                 if(indexValues.countTokens() != 2)
-                    return Error.INVALIDCOMMAND;
+                    return Error.SYNTAXERROR;
                 int x = Integer.parseInt(indexValues.nextToken());
                 int y = Integer.parseInt(indexValues.nextToken());
 
                 if(x < 1 || x > 4 || y < 1 || y > 4)
                     return Error.WRONGINDEX;
                 
-                return Error.INVALIDCOMMAND;
+                return Error.SYNTAXERROR;
             }
 
             if(operation.compareTo("VALUE") == 0 && numTokens == 3)
             {
                 if(keywords.nextToken().compareTo("IN") != 0)
-                    return Error.INVALIDCOMMAND;
+                    return Error.SYNTAXERROR;
                 
                 StringTokenizer indexValues = new StringTokenizer(keywords.nextToken(),",");
                 if(indexValues.countTokens() != 2)
-                    return Error.INVALIDCOMMAND;
+                    return Error.SYNTAXERROR;
                 int x = Integer.parseInt(indexValues.nextToken());
                 int y = Integer.parseInt(indexValues.nextToken());
 
                 if(x < 1 || x > 4 || y < 1 || y > 4)
                     return Error.WRONGINDEX;
                 
-                return Error.INVALIDCOMMAND;
+                return Error.SYNTAXERROR;
             }
         }
         catch(NumberFormatException e)
         {
-            return Error.INVALIDCOMMAND;
+            return Error.SYNTAXERROR;
         }
 
         return Error.INVALIDCOMMAND;
@@ -293,11 +308,13 @@ public class Driver
             case FULLSTOP:
                 return "You need to end a command with a full stop.";
             case WRONGINDEX:
-                return "There is no tile like that. The tile co-ordinates must be in the range 1,2,3,4";
+                return "There is no tile like that. The tile co-ordinates must be in the range 1,2,3,4.";
             case VARIABLENAME:
                 return "No, a keyword cannot be a variable name.";
             case INCORRECTVALUE:
                 return "Please enter a positive value.";
+            case SYNTAXERROR:
+                return "Syntax Error.";
             default:
                 return "Sorry, I don’t understand that.";
         }
@@ -353,8 +370,130 @@ public class Driver
         return board.getTileValue(x, y);
     }
 
+    private boolean checkCase(String token)
+    {
+        for(String x : this.moveOperations)
+        {
+            if(token.equalsIgnoreCase(x))
+                return true;
+        }
+        for(String x : this.commands)
+        {
+            if(token.equalsIgnoreCase(x))
+                return true;
+        }
+        for(String x : this.moveDirections)
+        {
+            if(token.equalsIgnoreCase(x))
+                return true;
+        }
+        for(String x : this.otherKeywords)
+        {
+            if(token.equalsIgnoreCase(x))
+                return true;
+        }
+        return false;
+    }
     public static void main(String args[])
     {
+        Driver driver =  new Driver();
         System.out.println("Welcome to the 2048 Game Engine!");
+        Board game = new Board();
+        System.out.println("The Start state is :");
+        game.printBoard();
+        Scanner sc = new Scanner(System.in);
+        while(true)
+        {
+            if(game.getGameState().equals(GameState.GAME_OVER))
+            {
+                System.out.println("Game Over. Thanks for Playing!");
+                break;
+            }
+            System.out.println("Please type a command:");
+            String command = sc.nextLine().trim();
+            if(!driver.endsWithFullStop(command))
+            {
+                System.out.println(driver.getErrorMessage(Error.FULLSTOP));
+                int err = -1;
+                System.err.println(err);
+                continue;
+            }
+            else
+            {
+                command = driver.removeFullStop(command);
+            }
+
+
+            if(!driver.isValidCommand(command))
+            {
+                System.out.println(driver.getErrorMessage(driver.getError(command)));
+                int err = -1;
+                System.err.println(err);
+                continue;
+            }
+            else
+            {
+                //command is valid
+                //get operation
+                Operation oper = driver.getOperation(command);
+
+                //execute operation
+                if(driver.supportedMoves.contains(oper))
+                {
+                    //check if move leads to end of game
+                    if(!game.checkMoveCommand(oper, driver.getDirection(command)))
+                    {
+                        System.out.println("WARNING, executing this move will end the game!");
+                        System.out.print("Do you want to continue? Enter N to retry, Enter any other key to continue : ");
+                        String response = sc.nextLine().trim();
+                        System.out.println();
+                        if(response.equalsIgnoreCase("N"))
+                        {
+                            continue;
+                        }
+                    }
+                    
+                    if(driver.executeMove(game, command))
+                    {
+                        System.out.println("Move Successful, random tile added");
+                        System.out.println("The cureent state is:");
+                        game.printBoard();
+                        System.err.println(game);
+                    }
+                    else
+                    {
+                        System.out.println("Move failed to execute. Please try again.");
+                        int err = -1;
+                        System.err.println(err);
+                    }
+                }
+
+                if(driver.supportedOperations.contains(oper))
+                {
+                    if(oper.equals(Operation.VALUE))
+                    {
+                        int x = driver.executeOperationValue(game, command);
+                        System.out.println("Operation Successful.");
+                        System.out.println("The value at the specified position is "+x);
+                    }
+                    else
+                    {
+                        if(driver.executeOperation(game, command))
+                        {
+                            System.out.println("Operation Successful. Random tile added.");
+                            System.out.println("The cureent state is:");
+                            game.printBoard();
+                            System.err.println(game);
+                        }
+                        else
+                        {
+                            System.out.println("Operation failed to execute. Please try again.");
+                            int err = -1;
+                            System.err.println(err);
+                        }
+                    }
+                }
+            }
+        }
     }
 }

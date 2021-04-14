@@ -1,7 +1,8 @@
 package Game;
 import java.util.ArrayList;
 
-class Tile{
+class Tile
+{
     private int value;
     private ArrayList<String> names;
     private boolean isMerged;
@@ -86,7 +87,6 @@ class Tile{
     {
         return String.valueOf(value);
     }
-
 
     public boolean isNamed()
     {
