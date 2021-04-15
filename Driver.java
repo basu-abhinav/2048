@@ -3,6 +3,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
 import java.util.StringTokenizer;
+import java.util.Random;
 
 public class Driver
 {
@@ -13,6 +14,7 @@ public class Driver
     private ArrayList<Operation> supportedMoves;
     //private ArrayList<Direction> supportedDirections;
     private ArrayList<Operation> supportedOperations;
+    private Random rand = new Random();
 
     public Driver()
     {
@@ -323,9 +325,9 @@ public class Driver
         }
     }
 
-    private boolean executeMove(Board board,String command)
+    private boolean executeMove(Board board,String command,int nextTile)
     {
-        return board.moveCommand(this.getOperation(command), this.getDirection(command));
+        return board.moveCommand(this.getOperation(command), this.getDirection(command),nextTile);
         //return true;
     }
 
@@ -412,6 +414,7 @@ public class Driver
         }
         return false;
     }
+    
     public static void main(String args[])
     {
         Driver driver =  new Driver();
@@ -466,7 +469,8 @@ public class Driver
                 if(driver.supportedMoves.contains(oper))
                 {
                     //check if move leads to end of game
-                    if(!game.checkMoveCommand(oper, driver.getDirection(command)))
+                    int val = driver.rand.nextInt(2) == 0 ? 4 : 2;
+                    if(!game.checkMoveCommand(oper, driver.getDirection(command),val))
                     {
                         System.out.println("WARNING, executing this move will end the game!");
                         System.out.print("Do you want to continue? Enter N to retry, Enter any other key to continue : ");
@@ -478,7 +482,7 @@ public class Driver
                         }
                     }
                     
-                    if(driver.executeMove(game, command))
+                    if(driver.executeMove(game, command,val))
                     {
                         System.out.println("Move Successful, random tile added");
                         System.out.println("The current state is:");
@@ -487,9 +491,11 @@ public class Driver
                     }
                     else
                     {
-                        System.out.println("Move failed to execute. Please try again.");
-                        int err = -1;
-                        System.err.println(err);
+                        System.out.println("Move not possible, try other moves.");
+                        System.out.println("The current state is:");
+                        game.printBoard();
+                        System.err.println(game);
+
                     }
                 }
 

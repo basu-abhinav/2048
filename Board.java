@@ -32,7 +32,7 @@ public class Board {
             }
         }
         this.gameState = board.getGameState();
-        checkingAvailableMoves = false;
+        checkingAvailableMoves = board.checkingAvailableMoves;
         this.nameSet = new HashSet<String>(board.getNameSet());
     }
 
@@ -80,7 +80,7 @@ public class Board {
         boolean hasMoves = false;
         for(Direction direction: Direction.values())
         {
-            hasMoves = hasMoves || moveCommand(Operation.ADD, direction);
+            hasMoves = hasMoves || moveCommand(Operation.ADD, direction,2);
             if(hasMoves)
             {
                 break;
@@ -101,6 +101,21 @@ public class Board {
 
         int val = rand.nextInt(2) == 0 ? 4 : 2;
         tiles[row][col] = new Tile(val);
+        System.out.println("addRandomTile()");
+    }
+
+    private void addRandomTile(int value)
+    {
+        int pos = 0;
+        int row, col;
+        do {
+            pos = rand.nextInt(DIMENSION * DIMENSION);
+            row = pos / DIMENSION;
+            col = pos % DIMENSION;
+        } while (tiles[row][col] != null);
+
+        int val = rand.nextInt(2) == 0 ? 4 : 2;
+        tiles[row][col] = new Tile(value);
         System.out.println("addRandomTile()");
     }
 
@@ -131,7 +146,7 @@ public class Board {
                     tile.setMerged(false);
     }
 
-    private boolean move(int countDownFrom, int yIncr, int xIncr, Operation operation) {
+    private boolean move(int countDownFrom, int yIncr, int xIncr, Operation operation,int nextTile) {
         
         boolean moved = false;
 
@@ -189,23 +204,26 @@ public class Board {
  
         if (moved) {
             clearMerged();
-            addRandomTile();
+            addRandomTile(nextTile);
             if (!movesAvailable())
             {
                 gameState = GameState.GAME_OVER;
             }
         }
+        
         return moved;
     }
+
+    
   
-    public boolean checkMoveCommand(Operation operation, Direction direction)
+    public boolean checkMoveCommand(Operation operation, Direction direction,int nextTile)
     {
         Board boardClone = new Board(this);
-        boardClone.moveCommand(operation, direction);
+        boardClone.moveCommand(operation, direction,nextTile);
         return boardClone.movesAvailable();
     }
 
-    public boolean moveCommand(Operation operation, Direction direction)
+    public boolean moveCommand(Operation operation, Direction direction,int nextTile)
     {
         int countDownFrom = 0 , yIncr = 0, xIncr = 0;
         switch (direction){
@@ -234,40 +252,8 @@ public class Board {
                 break;
             }
         }
-        return move(countDownFrom,yIncr,xIncr,operation);
-    }
-
-    public boolean moveCommand(Direction direction)
-    {
-        int countDownFrom = 0 , yIncr = 0, xIncr = 0;
-        switch (direction){
-            case LEFT:{
-                countDownFrom = 0;
-                yIncr = 0;
-                xIncr =-1;
-                break;
-            }
-            case RIGHT:{
-                countDownFrom = DIMENSION * DIMENSION - 1;
-                yIncr = 0;
-                xIncr =1;
-                break;
-            }
-            case UP:{
-                countDownFrom = 0;
-                yIncr = -1;
-                xIncr =0;
-                break;
-            }
-            case DOWN:{
-                countDownFrom = DIMENSION*DIMENSION-1;
-                yIncr = 1;
-                xIncr =0;
-                break;
-            }
-        }
-        return move(countDownFrom,yIncr,xIncr,Operation.ADD);
-    }
+        return move(countDownFrom,yIncr,xIncr,operation,nextTile);
+    }    
 
     private Tile[][] getTiles()
     {
