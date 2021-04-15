@@ -74,12 +74,15 @@ public class Board {
         }
     }
 
-    public boolean movesAvailable() {
+    public boolean movesAvailable()
+    {
         checkingAvailableMoves = true;
         boolean hasMoves = false;
-        for(Direction direction: Direction.values()){
+        for(Direction direction: Direction.values())
+        {
             hasMoves = hasMoves || moveCommand(Operation.ADD, direction);
-            if(hasMoves){
+            if(hasMoves)
+            {
                 break;
             }
         }
@@ -199,7 +202,7 @@ public class Board {
     {
         Board boardClone = new Board(this);
         boardClone.moveCommand(operation, direction);
-        return !boardClone.getGameState().equals(GameState.GAME_OVER);
+        return boardClone.movesAvailable();
     }
 
     public boolean moveCommand(Operation operation, Direction direction)
