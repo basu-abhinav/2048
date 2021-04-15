@@ -1,4 +1,6 @@
 package Game;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Random;
 
 public class Board {
@@ -8,18 +10,35 @@ public class Board {
     private boolean checkingAvailableMoves;
     private GameState gameState;
     private Random rand = new Random();
+    private HashSet<String> nameSet;
 
     public Board()
     {
         initializeBoard();
         this.checkingAvailableMoves = false;
         this.gameState = GameState.START;
+        this.nameSet = new HashSet<String>();
     }
 
-    public Board(Board board){
-        this.tiles = board.getTiles().clone();
+    public Board(Board board)
+    {
+        this.tiles = new Tile[DIMENSION][DIMENSION];
+        Tile[][] arrTiles = board.getTiles(); 
+        for(int i=0;i<DIMENSION;i++)
+        {
+            for(int j=0;j<DIMENSION;j++)
+            {                
+                this.tiles[i][j] = arrTiles[i][j] != null ? new Tile(arrTiles[i][j]):null;
+            }
+        }
         this.gameState = board.getGameState();
         checkingAvailableMoves = false;
+        this.nameSet = new HashSet<String>(board.getNameSet());
+    }
+
+    public HashSet<String> getNameSet()
+    {
+        return this.nameSet;
     }
 
     public void printBoard()
@@ -55,7 +74,7 @@ public class Board {
         }
     }
 
-    private boolean movesAvailable() {
+    public boolean movesAvailable() {
         checkingAvailableMoves = true;
         boolean hasMoves = false;
         for(Direction direction: Direction.values()){
@@ -150,10 +169,13 @@ public class Board {
                         return true;
  
                     next.mergeWith(curr,operation);
-                    if(operation.equals(Operation.SUBTRACT)){
-                        tiles[nextR][nextC]=null;
+                    if(operation.equals(Operation.SUBTRACT))
+                    {
+                        //tiles[nextR][nextC]=null;
+                        this.removeTile(nextR, nextC);
                     }
-                    tiles[r][c] = null;
+                    //tiles[r][c] = null;
+                    this.removeTile(r, c);
                     moved = true;
                     break;
                 } 
@@ -266,22 +288,34 @@ public class Board {
 
     public boolean assign(int x, int y, int value)
     {
-        if(x>1 && x<=DIMENSION && y>0 && y<=DIMENSION)
+        if(x>0 && x<=DIMENSION && y>0 && y<=DIMENSION)
         {
+            if(value == 0)
+            {
+                this.removeTile(x-1, y-1);
+                return true;
+            }
             tiles[x-1][y-1] = new Tile(value);
             return true;
         }
         return false;
     }
 
-    public boolean var(int x,int y, String name)
+    public int var(int x,int y, String name)
     {
+        if(this.nameSet.contains(name))
+        {
+            return 0;
+        }
         if(x>0 && x<=DIMENSION && y>0 && y<=DIMENSION && tiles[x-1][y-1] != null)
         {
             tiles[x-1][y-1].addName(name);
-            return true;
+            this.nameSet.add(name);
+            return 1;
         }
-        return false;
+        if(tiles[x-1][y-1] == null)
+            return -2;
+        return -1;
     }
 
     public int getTileValue(int x, int y)
@@ -299,11 +333,11 @@ public class Board {
         for(Tile[] tileArray: tiles){
             for(Tile tile: tileArray)
             {
-                try
+                if(tile != null)
                 {
                     str = str + tile.getValueString() + " ";
                 }
-                catch(NullPointerException e)
+                else
                 {
                     str = str + "0 ";
                 }
@@ -313,7 +347,7 @@ public class Board {
         for(int i=0;i<DIMENSION;i++){
             for(int j=0;j<DIMENSION;j++){
                 if(tiles[i][j] != null && tiles[i][j].isNamed()){
-                    str = str +" "+Integer.toString(i) + ',' + Integer.toString(j) + tiles[i][j].getNameString();
+                    str = str+Integer.toString(i+1) + ',' + Integer.toString(j+1) + tiles[i][j].getNameString()+" ";
                 }
             }
         }
@@ -321,4 +355,13 @@ public class Board {
         return str;
     }
 
+    private void removeTile(int x,int y)
+    {
+        ArrayList<String> names = this.tiles[x][y].getNames();
+        if(names != null)
+        {
+            this.nameSet.removeAll(names);
+        }
+        this.tiles[x][y] = null;
+    }
 }

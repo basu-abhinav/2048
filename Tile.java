@@ -14,6 +14,13 @@ class Tile
         this.isMerged = false;
     }
     
+    public Tile(Tile tile)
+    {
+        this.value = tile.getValue();
+        this.names = new ArrayList<String>(tile.getNames());
+        this.isMerged = tile.isMerged();
+    }
+
     public int getValue()
     {
         return this.value;
@@ -98,8 +105,9 @@ class Tile
         String str="";
         for(String name: names)
         {
-            str += name;
+            str += name + ",";
         }
+        str = str.substring(0,str.length()-1);
         return str;
     }
 

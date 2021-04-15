@@ -314,6 +314,10 @@ public class Driver
                 return "Please enter a positive value.";
             case SYNTAXERROR:
                 return "Syntax Error.";
+            case NONUNIQUENAME:
+                return "Same name cannot be assigned again to a Tile.";
+            case NULLNAMEASSIGN:
+                return "Name cannot be assigned to an empty Tile.";
             default:
                 return "Sorry, I don’t understand that.";
         }
@@ -321,8 +325,8 @@ public class Driver
 
     private boolean executeMove(Board board,String command)
     {
-        //return board.moveCommand(this.getOperation(command), this.getDirection(command));
-        return true;
+        return board.moveCommand(this.getOperation(command), this.getDirection(command));
+        //return true;
     }
 
     private boolean executeOperation(Board board,String command)
@@ -343,7 +347,6 @@ public class Driver
                 x = Integer.parseInt(indices.nextToken());
                 y = Integer.parseInt(indices.nextToken());
                 return board.assign(x, y, value);
-                //return true;
             case VAR:
                 tokens = new StringTokenizer(command," ");
                 String var = tokens.nextToken();
@@ -353,8 +356,20 @@ public class Driver
                 indices = new StringTokenizer(index,",");
                 x = Integer.parseInt(indices.nextToken());
                 y = Integer.parseInt(indices.nextToken());
-                return board.var(x, y, name);
-                //return true;
+                int returnVal = board.var(x, y, name);
+                if(returnVal == -1)
+                    return false;
+                else if(returnVal == 0)
+                {
+                    System.out.println(getErrorMessage(Error.NONUNIQUENAME));
+                    return false;
+                }
+                else if(returnVal == -2)
+                {
+                    System.out.println(getErrorMessage(Error.NULLNAMEASSIGN));
+                    return false;
+                }
+                return true;
             default:
                 return false;
         }
@@ -412,6 +427,11 @@ public class Driver
                 System.out.println("Game Over. Thanks for Playing!");
                 break;
             }
+            if(!game.movesAvailable())
+            {
+                System.out.println("Game Over. Thanks for Playing!");
+                break;
+            }
             System.out.println("Please type a command:");
             String command = sc.nextLine().trim();
             if(!driver.endsWithFullStop(command))
@@ -461,7 +481,7 @@ public class Driver
                     if(driver.executeMove(game, command))
                     {
                         System.out.println("Move Successful, random tile added");
-                        System.out.println("The cureent state is:");
+                        System.out.println("The current state is:");
                         game.printBoard();
                         System.err.println(game);
                     }
@@ -486,7 +506,7 @@ public class Driver
                         if(driver.executeOperation(game, command))
                         {
                             System.out.println("Operation Successful.");
-                            System.out.println("The cureent state is:");
+                            System.out.println("The current state is:");
                             game.printBoard();
                             System.err.println(game);
                         }
