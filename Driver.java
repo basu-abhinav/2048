@@ -321,7 +321,8 @@ public class Driver
 
     private boolean executeMove(Board board,String command)
     {
-        return board.moveCommand(this.getOperation(command), this.getDirection(command));
+        //return board.moveCommand(this.getOperation(command), this.getDirection(command));
+        return true;
     }
 
     private boolean executeOperation(Board board,String command)
@@ -342,6 +343,7 @@ public class Driver
                 x = Integer.parseInt(indices.nextToken());
                 y = Integer.parseInt(indices.nextToken());
                 return board.assign(x, y, value);
+                //return true;
             case VAR:
                 tokens = new StringTokenizer(command," ");
                 String var = tokens.nextToken();
@@ -351,7 +353,8 @@ public class Driver
                 indices = new StringTokenizer(index,",");
                 x = Integer.parseInt(indices.nextToken());
                 y = Integer.parseInt(indices.nextToken());
-                return board.var(x, y, name);                
+                return board.var(x, y, name);
+                //return true;
             default:
                 return false;
         }
@@ -367,6 +370,7 @@ public class Driver
         int x = Integer.parseInt(indices.nextToken());
         int y = Integer.parseInt(indices.nextToken());
         return board.getTileValue(x, y);
+        //return 1;
     }
 
     private boolean checkCase(String token)
@@ -481,7 +485,7 @@ public class Driver
                     {
                         if(driver.executeOperation(game, command))
                         {
-                            System.out.println("Operation Successful. Random tile added.");
+                            System.out.println("Operation Successful.");
                             System.out.println("The cureent state is:");
                             game.printBoard();
                             System.err.println(game);

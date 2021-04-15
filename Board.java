@@ -165,7 +165,8 @@ public class Board {
         if (moved) {
             clearMerged();
             addRandomTile();
-            if (!movesAvailable()) {
+            if (!movesAvailable())
+            {
                 gameState = GameState.GAME_OVER;
             }
         }
@@ -275,9 +276,10 @@ public class Board {
 
     public boolean var(int x,int y, String name)
     {
-        if(x>1 && x<=DIMENSION && y>0 && y<=DIMENSION && tiles[x-1][y-1] != null)
+        if(x>0 && x<=DIMENSION && y>0 && y<=DIMENSION && tiles[x-1][y-1] != null)
         {
             tiles[x-1][y-1].addName(name);
+            return true;
         }
         return false;
     }
