@@ -183,8 +183,7 @@ public class Driver
 
     private String removeFullStop(String command)
     {
-        String keywords[] = command.split(".");
-        return keywords[0];
+        return command.substring(0,command.length()-1);
     }
 
     private Error getError(String command)
@@ -435,6 +434,8 @@ public class Driver
             {
                 //command is valid
                 //get operation
+
+
                 Operation oper = driver.getOperation(command);
 
                 //execute operation

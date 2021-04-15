@@ -79,6 +79,7 @@ public class Board {
 
         int val = rand.nextInt(2) == 0 ? 4 : 2;
         tiles[row][col] = new Tile(val);
+        System.out.println("addRandomTile()");
     }
 
     private void addRandomTile(boolean moved)
@@ -97,6 +98,7 @@ public class Board {
 
         int val = rand.nextInt(2) == 0 ? 4 : 2;
         tiles[row][col] = new Tile(val);
+        System.out.println("addRandomTile(boolean moved)");
     }
 
     private void clearMerged()
@@ -293,8 +295,16 @@ public class Board {
     {
         String str = "";
         for(Tile[] tileArray: tiles){
-            for(Tile tile: tileArray){
-                str = str + tile.getValueString() + " ";
+            for(Tile tile: tileArray)
+            {
+                try
+                {
+                    str = str + tile.getValueString() + " ";
+                }
+                catch(NullPointerException e)
+                {
+                    str = str + "0 ";
+                }
             }
         }
 
