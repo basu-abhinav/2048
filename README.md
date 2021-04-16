@@ -11,4 +11,4 @@ javac -d . Enum.java Tile.java Board.java Driver.java
 
 # Execution
 
-java Game.driver
+java Game.Driver
