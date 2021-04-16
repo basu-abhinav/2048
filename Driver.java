@@ -12,7 +12,6 @@ public class Driver
     private ArrayList<String> commands;
     private ArrayList<String> otherKeywords;
     private ArrayList<Operation> supportedMoves;
-    //private ArrayList<Direction> supportedDirections;
     private ArrayList<Operation> supportedOperations;
     private Random rand = new Random();
 
@@ -23,7 +22,6 @@ public class Driver
         this.commands = new ArrayList<String>(Arrays.asList("ASSIGN","VAR","VALUE"));
         this.otherKeywords = new ArrayList<String>(Arrays.asList("IS","TO","IN"));
         this.supportedMoves = new ArrayList<Operation>(Arrays.asList(Operation.ADD,Operation.SUBTRACT,Operation.MULTIPLY,Operation.DIVIDE));
-        //this.supportedDirections = new ArrayList<Direction>(Arrays.asList(Direction.UP,Direction.DOWN,Direction.LEFT,Direction.RIGHT));
         this.supportedOperations = new ArrayList<Operation>(Arrays.asList(Operation.ASSIGN,Operation.VAR,Operation.VALUE));
     }
 
@@ -328,7 +326,6 @@ public class Driver
     private boolean executeMove(Board board,String command,int nextTile)
     {
         return board.moveCommand(this.getOperation(command), this.getDirection(command),nextTile);
-        //return true;
     }
 
     private boolean executeOperation(Board board,String command)
@@ -413,8 +410,7 @@ public class Driver
                 return true;
         }
         return false;
-    }
-    
+    }    
     public static void main(String args[])
     {
         Driver driver =  new Driver();
@@ -526,5 +522,6 @@ public class Driver
                 }
             }
         }
+        sc.close();
     }
 }

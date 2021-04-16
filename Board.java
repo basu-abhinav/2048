@@ -90,7 +90,8 @@ public class Board {
         return hasMoves;
     }
 
-    private void addRandomTile(){
+    private void addRandomTile()
+    {
         int pos = 0;
         int row, col;
         do {
@@ -101,7 +102,6 @@ public class Board {
 
         int val = rand.nextInt(2) == 0 ? 4 : 2;
         tiles[row][col] = new Tile(val);
-        System.out.println("addRandomTile()");
     }
 
     private void addRandomTile(int value)
@@ -116,7 +116,6 @@ public class Board {
 
         int val = rand.nextInt(2) == 0 ? 4 : 2;
         tiles[row][col] = new Tile(value);
-        System.out.println("addRandomTile()");
     }
 
     private void addRandomTile(boolean moved)
@@ -135,7 +134,6 @@ public class Board {
 
         int val = rand.nextInt(2) == 0 ? 4 : 2;
         tiles[row][col] = new Tile(val);
-        System.out.println("addRandomTile(boolean moved)");
     }
 
     private void clearMerged()
@@ -189,10 +187,8 @@ public class Board {
                     next.mergeWith(curr,operation);
                     if(operation.equals(Operation.SUBTRACT))
                     {
-                        //tiles[nextR][nextC]=null;
                         this.removeTile(nextR, nextC);
                     }
-                    //tiles[r][c] = null;
                     this.removeTile(r, c);
                     moved = true;
                     break;
@@ -214,8 +210,6 @@ public class Board {
         return moved;
     }
 
-    
-  
     public boolean checkMoveCommand(Operation operation, Direction direction,int nextTile)
     {
         Board boardClone = new Board(this);
