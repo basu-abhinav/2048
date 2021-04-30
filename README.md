@@ -1,14 +1,14 @@
 Welcome to the 2048 Game built on Java!
 
-Build the Java Package Game and Execute the Driver main function!
+Build the Java Package Game and run the Driver!
 
-# Compilation Instructions:
+# Compilation:
 
 Inside a folder containing the following files, Enum.java, Tile.java, Board.java and Driver.java, execute the following commands.
 
 javac -d . Enum.java Tile.java Board.java Driver.java
 
 
-# Execution
+# Launch Game:
 
 java Game.Driver
